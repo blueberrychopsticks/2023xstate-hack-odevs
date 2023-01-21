@@ -2,13 +2,28 @@ import "./App.css";
 import { useIssuesForRepo } from "./issuesForRepoMachine";
 import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 import { Autocomplete, TextField } from "@mui/material";
+import { useEffect } from "react";
+import { Octokit } from "octokit";
 
 function App() {
   const {
     allState,
+    labelsFromMachine,
     state: { repos, selectedRepo, issues, selectedIssue },
     actions: { selectRepo, selectIssue },
   } = useIssuesForRepo(GITHUB_TOKEN);
+
+  useEffect(() => {
+    const foo = async () => {
+      // await createLabelsThatDontAlreadyExist({
+      //   labels: labelsFromMachine,
+      //   owner: "joshuajbouw",
+      //   repo: "test",
+      // });
+    };
+
+    labelsFromMachine?.length && foo();
+  }, [labelsFromMachine]);
 
   return (
     <div className="App">
