@@ -17,7 +17,9 @@ export const NoIssues = ({
   issues,
   selectRepo,
   selectIssue,
+  selectedIssue,
   isIssueModalDisplayed,
+  closeIssueModal,
 }) => {
   const [tempRepo, setTempRepo] = useState(null);
 
@@ -42,7 +44,9 @@ export const NoIssues = ({
               issues={issues}
               selectedRepo={selectedRepo}
               selectIssue={selectIssue}
+              selectedIssue={selectedIssue}
               isIssueModalDisplayed={isIssueModalDisplayed}
+              closeIssueModal={closeIssueModal}
             />
           )}
         </DialogContent>

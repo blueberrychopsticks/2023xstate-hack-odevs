@@ -12,7 +12,7 @@ function App() {
       selectedIssue,
       isIssueModalDisplayed,
     },
-    actions: { selectRepo, selectIssue },
+    actions: { selectRepo, selectIssue, closeIssueModal },
   } = useIssuesForRepo(GITHUB_TOKEN);
 
   return (
@@ -25,6 +25,7 @@ function App() {
         selectRepo={selectRepo}
         selectIssue={selectIssue}
         isIssueModalDisplayed={isIssueModalDisplayed}
+        closeIssueModal={closeIssueModal}
       />
     </div>
   );
