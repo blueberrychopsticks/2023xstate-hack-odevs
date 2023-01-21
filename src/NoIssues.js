@@ -27,7 +27,7 @@ export const NoIssues = ({
         onClick={() => setOpenDialog(true)}
         endIcon={<AddCircle fontSize="large" />}
       />
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} dividers>
+      <Dialog open={true} onClose={() => setOpenDialog(false)} dividers>
         <DialogTitle>Select A Repo</DialogTitle>
         <DialogContent>
           {!selectedRepo && (
