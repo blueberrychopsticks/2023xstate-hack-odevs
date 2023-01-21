@@ -4,7 +4,6 @@ import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 import { Autocomplete, TextField } from "@mui/material";
 
 function App() {
-  // WILL COME FROM PROPS
   const {
     allState,
     state: { repos, selectedRepo, issues, selectedIssue },
