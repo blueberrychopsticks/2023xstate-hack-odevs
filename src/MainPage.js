@@ -1,7 +1,6 @@
 import { Typography, Button, Grid, ButtonGroup } from "@mui/material";
 
 export const MainPage = ({ issues, selectedRepo }) => {
-  console.log({ issues, selectedRepo });
   return (
     <Grid container>
       <Typography variant="h4">Issues for {selectedRepo.name}</Typography>
