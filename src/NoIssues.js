@@ -11,13 +11,13 @@ import {
 import { useState } from "react";
 import { MainPage } from "./MainPage";
 
-export const NoIssues = (
+export const NoIssues = ({
   repos,
   selectedRepo,
   issues,
   selectedIssue,
-  selectRepo
-) => {
+  selectRepo,
+}) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [tempRepo, setTempRepo] = useState(null);
 

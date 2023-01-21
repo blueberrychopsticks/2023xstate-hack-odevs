@@ -1,13 +1,11 @@
 import { Typography, Button, Stack } from "@mui/material";
 
-export const MainPage = (issues, selectedRepo) => {
-  console.log(issues);
+export const MainPage = ({ issues, selectedRepo }) => {
+  console.log({ issues, selectedRepo });
   return (
     <>
-      {/* <Typography variant="h4">Issues for {selectedRepo}</Typography> */}
-      <Typography variant="h4">Issues for SELECTEDREPO</Typography>
-      {/* 
-      {issues?.issues.map((issue, index) => {
+      <Typography variant="h4">Issues for {selectedRepo.name}</Typography>
+      {issues?.map((issue) => {
         return (
           <Stack>
             <Typography variant="h6">TITLE</Typography>
@@ -23,7 +21,7 @@ export const MainPage = (issues, selectedRepo) => {
             </Button>
           </Stack>
         );
-      })} */}
+      })}
     </>
   );
 };

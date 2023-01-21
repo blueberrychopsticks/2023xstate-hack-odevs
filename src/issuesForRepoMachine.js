@@ -93,6 +93,7 @@ export const useIssuesForRepo = (githubToken) => {
   });
 
   const { repos, selectedRepo, issues, selectedIssue } = state.context;
+  console.log({ selectedRepo });
 
   const selectIssue = (issueName) => {
     const issue = issues.find((issue) => issue.title === issueName);
