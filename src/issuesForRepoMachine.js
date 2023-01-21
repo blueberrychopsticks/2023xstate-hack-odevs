@@ -1,43 +1,18 @@
 import { assign, createMachine } from "xstate";
-import { fetchAllIssuesForRepo, fetchRepos } from "./githubApi";
+import {
+  assignLabelToIssueAndRemoveOurExistingLabels,
+  createLabelsThatDontAlreadyExist,
+  fetchAllIssuesForRepo,
+  fetchRepos,
+} from "./githubApi";
 import { useMachine } from "@xstate/react";
 import { Octokit } from "octokit";
-import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 
 export const labelPrefix = "label:";
-const implementKey = labelPrefix + "implement";
-const bugKey = labelPrefix + "bug";
-const researchKey = labelPrefix + "research";
-const codeReviewKey = labelPrefix + "code-review";
-
-const createLabelsThatDontAlreadyExist = async ({ labels, owner, repo }) => {
-  const octokit = new Octokit({
-    auth: GITHUB_TOKEN,
-  });
-  const existingLabels = await octokit.rest.issues.listLabelsForRepo({
-    owner,
-    repo,
-  });
-
-  const existingLabelNames = existingLabels.data.map((label) => label.name);
-
-  const labelsThatDontAlreadyExist = labels.filter(
-    (label) => !existingLabelNames.includes(label)
-  );
-
-  await Promise.all(
-    labelsThatDontAlreadyExist.map((label) =>
-      octokit.rest.issues.createLabel({
-        owner,
-        repo,
-        name: label,
-        color: /* TODO Use pretty colors */ "000000",
-      })
-    )
-  );
-
-  return labelsThatDontAlreadyExist;
-};
+export const implementKey = labelPrefix + "implement";
+export const bugKey = labelPrefix + "bug";
+export const researchKey = labelPrefix + "research";
+export const codeReviewKey = labelPrefix + "code-review";
 
 const issuesForRepoMachine = createMachine({
   id: " Issues for Repo Machine",
@@ -52,6 +27,7 @@ const issuesForRepoMachine = createMachine({
     selectedIssue: null,
   },
   states: {
+    /***/
     loadingAllRepos: {
       invoke: {
         id: "loadAllrepos",
@@ -105,12 +81,66 @@ const issuesForRepoMachine = createMachine({
     },
 
     waitingToChooseIssue: {
+      entry: assign({
+        selectedIssue: null,
+      }),
       on: {
         issueSelected: {
-          target: "waitingForInput",
+          target: "displayingIssueModal",
+          actions: [
+            assign({
+              selectedIssue: (_, event) => event.data,
+            }),
+            async (context, event) => {
+              await assignLabelToIssueAndRemoveOurExistingLabels(
+                context,
+                event.data.condition
+              );
+            },
+          ],
+        },
+      },
+    },
+
+    displayingIssueModal: {
+      on: {
+        end: {
           actions: assign({
-            selectedIssue: (_, event) => event.data,
+            selectedIssue: (context) => ({
+              ...context.selectedIssue,
+              condition: implementKey,
+            }),
           }),
+        },
+
+        log: {
+          actions: (context, event) => {
+            /*UNTESTED*/ context.octokit.rest.issues.createComment({
+              owner: context.selectedRepo.owner,
+              repo: context.selectedRepo.name,
+              issue_number: context.selectedIssue.number,
+              body: event.data,
+            });
+          },
+        },
+
+        changeCondition: {
+          actions: assign({
+            selectedIssue: (context, event) => ({
+              ...context.selectedIssue,
+              condition: event.data.condition,
+            }),
+          }),
+        },
+
+        submitToCodeReview: {
+          target: "waitingToChooseIssue",
+          actions: async (context, event) => {
+            await assignLabelToIssueAndRemoveOurExistingLabels(
+              context,
+              event.data.condition
+            );
+          },
         },
       },
     },
@@ -119,59 +149,10 @@ const issuesForRepoMachine = createMachine({
       type: "final",
     },
 
-    [implementKey]: {
-      on: {
-        [bugKey]: {
-          target: bugKey,
-          // side effect to mutate issue!
-        },
-
-        [researchKey]: {
-          target: researchKey,
-          // side effect to mutate issue!
-        },
-
-        [codeReviewKey]: {
-          target: [codeReviewKey],
-          // side effect to mutate issue!
-        },
-
-        log: {
-          // side effect to mutate issue!
-        },
-      },
-    },
-
-    [codeReviewKey]: {
-      // Always go straight to waitingToChooseIssue
-      always: {
-        target: "waitingToChooseIssue",
-      },
-    },
-
-    [bugKey]: {
-      on: {
-        log: {
-          // side effect to mutate issue!
-        },
-        solved: {
-          target: "waitingToChooseIssue",
-          // side effect to mutate issue!
-        },
-      },
-    },
-
-    [researchKey]: {
-      on: {
-        log: {
-          // side effect to mutate issue!
-        },
-        done: {
-          target: implementKey,
-          // side effect to mutate issue!
-        },
-      },
-    },
+    [implementKey]: {},
+    [codeReviewKey]: {},
+    [bugKey]: {},
+    [researchKey]: {},
 
     rejected: {
       on: {
@@ -198,11 +179,13 @@ export const useIssuesForRepo = (githubToken) => {
   });
 
   const { repos, selectedRepo, issues, selectedIssue } = state.context;
-  console.log({ selectedRepo });
 
-  const selectIssue = (issueName) => {
+  const selectIssue = (issueName, issueCondition) => {
     const issue = issues.find((issue) => issue.title === issueName);
-    send({ type: "issueSelected", data: issue });
+    send({
+      type: "issueSelected",
+      data: { ...issue, condition: issueCondition },
+    });
   };
 
   const selectRepo = (repo) => {
