@@ -142,6 +142,13 @@ const issuesForRepoMachine = createMachine({
             );
           },
         },
+
+        closeIssueModal: {
+          target: "waitingToChooseIssue",
+          actions: assign({
+            selectedIssue: null,
+          }),
+        },
       },
     },
 
@@ -180,6 +187,7 @@ export const useIssuesForRepo = (githubToken) => {
   });
 
   const isIssueModalDisplayed = state.matches("displayingIssueModal");
+  console.log({ isIssueModalDisplayed });
 
   const { repos, selectedRepo, issues, selectedIssue } = state.context;
 
@@ -202,6 +210,10 @@ export const useIssuesForRepo = (githubToken) => {
     });
   };
 
+  const closeIssueModal = () => {
+    send({ type: "closeIssueModal" });
+  };
+
   return {
     labelsFromMachine,
     state: {
@@ -214,6 +226,7 @@ export const useIssuesForRepo = (githubToken) => {
     actions: {
       selectRepo,
       selectIssue,
+      closeIssueModal,
     },
   };
 };
