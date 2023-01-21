@@ -172,16 +172,18 @@ export const useIssuesForRepo = (githubToken) => {
     (key) => key.startsWith(labelPrefix)
   );
   const [state, send] = useMachine(issuesForRepoMachine, {
+    devTools: true,
     context: {
       octokit,
       labels: labelsFromMachine,
     },
   });
 
+  const isIssueModalDisplayed = state.matches("displayingIssueModal");
+
   const { repos, selectedRepo, issues, selectedIssue } = state.context;
 
-  const selectIssue = (issueName, issueCondition) => {
-    const issue = issues.find((issue) => issue.title === issueName);
+  const selectIssue = (issue, issueCondition) => {
     send({
       type: "issueSelected",
       data: { ...issue, condition: issueCondition },
@@ -201,9 +203,14 @@ export const useIssuesForRepo = (githubToken) => {
   };
 
   return {
-    allState: state,
     labelsFromMachine,
-    state: { repos, selectedRepo, issues, selectedIssue },
+    state: {
+      repos,
+      selectedRepo,
+      issues,
+      selectedIssue,
+      isIssueModalDisplayed,
+    },
     actions: {
       selectRepo,
       selectIssue,

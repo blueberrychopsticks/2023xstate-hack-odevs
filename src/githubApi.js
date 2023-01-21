@@ -35,7 +35,8 @@ export const assignLabelToIssueAndRemoveOurExistingLabels = async (
   context,
   labelToAdd
 ) => {
-  const { octokit, labels: labelsToRemove, selectedIssue: issue } = context;
+  const { octokit, labels: allLabels, selectedIssue: issue } = context;
+  console.log({ allLabels, issue });
 
   const params = {
     repo: context.selectedRepo.name,
@@ -48,16 +49,23 @@ export const assignLabelToIssueAndRemoveOurExistingLabels = async (
     labels: [labelToAdd],
   };
 
+  const oldLabels = await octokit.rest.issues.listLabelsOnIssue(params);
+  const oldLabelsToRemove = oldLabels.data.filter((label) =>
+    allLabels.includes(label.name)
+  );
+
   await octokit.rest.issues.addLabels(addLabelParams);
 
-  await Promise.all(
-    labelsToRemove.map(async (label) => {
-      await octokit.rest.issues.removeLabel({
-        ...params,
-        name: label,
-      });
-    })
-  );
+  if (oldLabelsToRemove.length > 0) {
+    await Promise.all(
+      oldLabelsToRemove.map(async (label) => {
+        await octokit.rest.issues.removeLabel({
+          ...params,
+          name: label,
+        });
+      })
+    );
+  }
 };
 
 export const createLabelsThatDontAlreadyExist = async ({
