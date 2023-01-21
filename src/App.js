@@ -18,17 +18,12 @@ function App() {
     // Compare: https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
     async function foo() {
       // list all repos for the authenticated user
-      setRepos(
-        octokit.rest.repos
-          .listForAuthenticatedUser({
-            visibility: "all",
-          })
-          .then((data) => {
-            return data.map((repo) => {
-              return repo.name;
-            });
-          })
-      );
+      const repos = await octokit.rest.repos.listForAuthenticatedUser({
+        visibility: "all",
+      });
+      const repoNames = repos.data.map((repo) => repo.name);
+      setRepos(repoNames);
+      console.log(repoNames);
 
       const issues = await octokit.rest.issues.list();
       // console.log(JSON.stringify(issues, null, 4));
@@ -52,10 +47,6 @@ function App() {
       //   owner,
       //   repo,
       // });
-
-      const repos = await octokit.rest.repos.listForAuthenticatedUser();
-      const repoNames = repos.data.map((repo) => repo.name);
-      console.log(repoNames);
     }
 
     foo();
