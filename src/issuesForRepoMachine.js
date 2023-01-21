@@ -187,7 +187,6 @@ export const useIssuesForRepo = (githubToken) => {
   });
 
   const isIssueModalDisplayed = state.matches("displayingIssueModal");
-  console.log({ isIssueModalDisplayed });
 
   const { repos, selectedRepo, issues, selectedIssue } = state.context;
 
@@ -214,6 +213,10 @@ export const useIssuesForRepo = (githubToken) => {
     send({ type: "closeIssueModal" });
   };
 
+  const submitComment = (comment) => {
+    send({ type: "log", data: comment });
+  };
+
   return {
     labelsFromMachine,
     state: {
@@ -227,6 +230,7 @@ export const useIssuesForRepo = (githubToken) => {
       selectRepo,
       selectIssue,
       closeIssueModal,
+      submitComment,
     },
   };
 };

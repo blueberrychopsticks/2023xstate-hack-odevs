@@ -53,13 +53,6 @@ export const assignLabelToIssueAndRemoveOurExistingLabels = async (
     .filter((label) => allLabels.includes(label.name))
     .map((label) => label.name);
 
-  console.log({
-    oldLabelsToRemove,
-    labelToAdd,
-    old: oldLabels.data,
-    allLabels,
-  });
-
   if (oldLabelsToRemove.length > 0) {
     await Promise.all(
       oldLabelsToRemove.map(async (label) => {
