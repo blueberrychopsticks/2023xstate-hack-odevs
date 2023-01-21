@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-
+import { Autocomplete, TextField } from "@mui/material";
 import logo from "./logo.svg";
 import "./App.css";
 import { Octokit } from "octokit";
 import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 
 function App() {
+  const [repos, setRepos] = useState([]);
+
   useEffect(() => {
     console.log(GITHUB_TOKEN);
     // Create a personal access token at https://github.com/settings/tokens/new?scopes=repo
@@ -15,6 +17,19 @@ function App() {
 
     // Compare: https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
     async function foo() {
+      // list all repos for the authenticated user
+      setRepos(
+        octokit.rest.repos
+          .listForAuthenticatedUser({
+            visibility: "all",
+          })
+          .then((data) => {
+            return data.map((repo) => {
+              return repo.name;
+            });
+          })
+      );
+
       const issues = await octokit.rest.issues.list();
       // console.log(JSON.stringify(issues, null, 4));
 
@@ -62,6 +77,12 @@ function App() {
           Learn React
         </a>
       </header>
+      <Autocomplete
+        disablePortal
+        options={repos}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Repo" />}
+      />
     </div>
   );
 }
