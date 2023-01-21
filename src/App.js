@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { Octokit } from "octokit";
+import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 
 function App() {
   useEffect(() => {
+    console.log(GITHUB_TOKEN);
     // Create a personal access token at https://github.com/settings/tokens/new?scopes=repo
     const octokit = new Octokit({
-      auth: `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`,
+      auth: GITHUB_TOKEN,
     });
 
     // Compare: https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
@@ -23,18 +25,22 @@ function App() {
       const owner = issue.repository.owner.login;
       const repo = issue.repository.name;
 
-      await octokit.rest.issues.createLabel({
-        owner,
-        repo,
-        name: "foo",
-        color: "ff0000",
-      });
+      // await octokit.rest.issues.createLabel({
+      //   owner,
+      //   repo,
+      //   name: "foo",
+      //   color: "ff0000",
+      // });
 
       // await octokit.rest.issues.removeAllLabels({
       //   issue_number: issue.number,
       //   owner,
       //   repo,
       // });
+
+      const repos = await octokit.rest.repos.listForAuthenticatedUser();
+      const repoNames = repos.data.map((repo) => repo.name);
+      console.log(repoNames);
     }
 
     foo();
