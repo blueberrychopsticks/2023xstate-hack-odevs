@@ -2,6 +2,7 @@ import "./App.css";
 import { useIssuesForRepo } from "./issuesForRepoMachine";
 import { GITHUB_TOKEN } from "./HIDDEN/tokens";
 import { Autocomplete, TextField } from "@mui/material";
+import { NoIssues } from "./NoIssues";
 
 function App() {
   const {
@@ -59,6 +60,13 @@ function App() {
       {/*    Learn React*/}
       {/*  </a>*/}
       {/*</header>*/}
+      <NoIssues
+        repos={repos}
+        selectedRepo={selectedRepo}
+        issues={issues}
+        selectedIssue={selectedIssue}
+        selectRepo={selectRepo}
+      />
     </div>
   );
 }
