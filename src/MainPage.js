@@ -1,6 +1,12 @@
 import { Typography, Button, Grid, ButtonGroup } from "@mui/material";
+import { bugKey, implementKey, researchKey } from "./issuesForRepoMachine";
 
-export const MainPage = ({ issues, selectedRepo }) => {
+export const MainPage = ({
+  issues,
+  selectedRepo,
+  selectIssue,
+  isIssueModalDisplayed,
+}) => {
   return (
     <Grid container>
       <Typography variant="h4">Issues for {selectedRepo.name}</Typography>
@@ -12,19 +18,13 @@ export const MainPage = ({ issues, selectedRepo }) => {
             </Grid>
             <Grid item xs={7}>
               <ButtonGroup size="small">
-                <Button
-                  onClick={() => console.log("Research for: " + issue.title)}
-                >
+                <Button onClick={() => selectIssue(issue, researchKey)}>
                   Research
                 </Button>
-                <Button
-                  onClick={() => console.log("Error for: " + issue.title)}
-                >
+                <Button onClick={() => selectIssue(issue, bugKey)}>
                   Error
                 </Button>
-                <Button
-                  onClick={() => console.log("Error for: " + issue.title)}
-                >
+                <Button onClick={() => selectIssue(issue, implementKey)}>
                   Implementation
                 </Button>
               </ButtonGroup>

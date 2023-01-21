@@ -5,8 +5,14 @@ import { NoIssues } from "./NoIssues";
 
 function App() {
   const {
-    state: { repos, selectedRepo, issues, selectedIssue },
-    actions: { selectRepo },
+    state: {
+      repos,
+      selectedRepo,
+      issues,
+      selectedIssue,
+      isIssueModalDisplayed,
+    },
+    actions: { selectRepo, selectIssue },
   } = useIssuesForRepo(GITHUB_TOKEN);
 
   return (
@@ -17,6 +23,8 @@ function App() {
         issues={issues}
         selectedIssue={selectedIssue}
         selectRepo={selectRepo}
+        selectIssue={selectIssue}
+        isIssueModalDisplayed={isIssueModalDisplayed}
       />
     </div>
   );
