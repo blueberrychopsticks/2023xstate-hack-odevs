@@ -1,11 +1,10 @@
-import { AddCircle } from "@mui/icons-material";
 import {
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Button,
-  DialogContent,
   Autocomplete,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   TextField,
 } from "@mui/material";
 import { useState } from "react";
@@ -20,14 +19,18 @@ export const NoIssues = ({
   selectedIssue,
   isIssueModalDisplayed,
   closeIssueModal,
+  submitComment,
 }) => {
   const [tempRepo, setTempRepo] = useState(null);
 
+  const title = selectedRepo ? selectedRepo.name : "Select a repo";
+
   return (
     <>
-      <Dialog open={true} dividers>
-        <DialogTitle>Select A Repo</DialogTitle>
-        <DialogContent>
+      <Dialog fullWidth maxWidth={"lg"} open={true} dividers>
+        <DialogTitle>{title}</DialogTitle>
+        {/*<DialogContent sx={{ height: 700, width: 100 }}>*/}
+        <DialogContent sx={{ height: 400 }}>
           {!selectedRepo && (
             <Autocomplete
               onChange={(event, value) => {
@@ -35,7 +38,7 @@ export const NoIssues = ({
               }}
               disablePortal
               options={repos?.map((repo) => repo.name)}
-              sx={{ width: 300 }}
+              fullWidth
               renderInput={(params) => <TextField {...params} label="Repo" />}
             />
           )}
@@ -47,11 +50,14 @@ export const NoIssues = ({
               selectedIssue={selectedIssue}
               isIssueModalDisplayed={isIssueModalDisplayed}
               closeIssueModal={closeIssueModal}
+              submitComment={submitComment}
             />
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => selectRepo(tempRepo)}>Submit</Button>
+          {!selectedRepo && (
+            <Button onClick={() => selectRepo(tempRepo)}>Submit</Button>
+          )}
         </DialogActions>
       </Dialog>
     </>
