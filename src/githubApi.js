@@ -1,3 +1,6 @@
+import { Octokit } from "octokit";
+import { GITHUB_TOKEN } from "./HIDDEN/tokens";
+
 export const fetchRepos = async (context) => {
   const { octokit } = context;
 
@@ -26,4 +29,66 @@ export const fetchAllIssuesForRepo = async (context) => {
       labels: issue.labels.map((label) => label.name),
     };
   });
+};
+
+export const assignLabelToIssueAndRemoveOurExistingLabels = async (
+  context,
+  labelToAdd
+) => {
+  const { octokit, labels: labelsToRemove, selectedIssue: issue } = context;
+
+  const params = {
+    repo: context.selectedRepo.name,
+    owner: context.selectedRepo.owner,
+    issue_number: issue.number,
+  };
+
+  const addLabelParams = {
+    ...params,
+    labels: [labelToAdd],
+  };
+
+  await octokit.rest.issues.addLabels(addLabelParams);
+
+  await Promise.all(
+    labelsToRemove.map(async (label) => {
+      await octokit.rest.issues.removeLabel({
+        ...params,
+        name: label,
+      });
+    })
+  );
+};
+
+export const createLabelsThatDontAlreadyExist = async ({
+  labels,
+  owner,
+  repo,
+}) => {
+  const octokit = new Octokit({
+    auth: GITHUB_TOKEN,
+  });
+  const existingLabels = await octokit.rest.issues.listLabelsForRepo({
+    owner,
+    repo,
+  });
+
+  const existingLabelNames = existingLabels.data.map((label) => label.name);
+
+  const labelsThatDontAlreadyExist = labels.filter(
+    (label) => !existingLabelNames.includes(label)
+  );
+
+  await Promise.all(
+    labelsThatDontAlreadyExist.map((label) =>
+      octokit.rest.issues.createLabel({
+        owner,
+        repo,
+        name: label,
+        color: /* TODO Use pretty colors */ "000000",
+      })
+    )
+  );
+
+  return labelsThatDontAlreadyExist;
 };
